@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · SpendWise{% endblock %}
+{% block heading %}Your spending at a glance{% endblock %}
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card"><span class="stat-label">TOTAL EXPENSES</span><strong>₹{{ "%.2f"|format(total) }}</strong><span class="stat-foot">All saved transactions</span></article>
+  <article class="stat-card"><span class="stat-label">MONTHLY AVERAGE</span><strong>₹{{ "%.2f"|format(monthly) }}</strong><span class="stat-foot">Average of recorded months</span></article>
+  <article class="stat-card"><span class="stat-label">TRANSACTIONS</span><strong>{{ count }}</strong><span class="stat-foot">Expense records in database</span></article>
+  <article class="stat-card"><span class="stat-label">TOP CATEGORY</span><strong class="top-category">{{ categories[0]["category"] if categories else "—" }}</strong><span class="stat-foot">By total amount</span></article>
+</section>
+<section class="content-grid">
+  <article class="panel wide"><div class="panel-head"><div><h2>Monthly spending</h2><p>Your expenses over time</p></div><span class="tag">TIME SERIES</span></div><div id="monthlyChart" class="chart"></div></article>
+  <article class="panel"><div class="panel-head"><div><h2>Spending mix</h2><p>Expenses by category</p></div></div><div id="categoryChart" class="chart"></div></article>
+</section>
+<section class="panel"><div class="panel-head"><div><h2>Recent transactions</h2><p>Your latest saved expenses</p></div><a href="/transactions" class="text-link">View all →</a></div>
+  {% if recent %}<div class="table-wrap"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Payment</th><th class="right">Amount</th></tr></thead><tbody>{% for row in recent %}<tr><td>{{ row["date"] }}</td><td><span class="category-pill">{{ row["category"] }}</span></td><td>{{ row["description"] or "—" }}</td><td>{{ row["payment_method"] or "—" }}</td><td class="right amount">₹{{ "%.2f"|format(row["amount"]) }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty"><div class="empty-icon">↗</div><h3>Your dashboard is ready</h3><p>Import the sample CSV or add your first expense to see your analytics.</p><a class="button" href="/transactions">Add your first expenses</a></div>{% endif %}
+</section>
+<script>
+const months = {{ monthly_trend|map(attribute="month")|list|tojson }};
+const totals = {{ monthly_trend|map(attribute="total")|list|tojson }};
+const cats = {{ categories|map(attribute="category")|list|tojson }};
+const catTotals = {{ categories|map(attribute="total")|list|tojson }};
+const layout = {paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{family:"Inter, Arial",color:"#637083"},margin:{l:45,r:15,t:12,b:42},xaxis:{gridcolor:"#edf0f5"},yaxis:{gridcolor:"#edf0f5",tickprefix:"₹"},showlegend:false};
+Plotly.newPlot("monthlyChart", [{x:months,y:totals,type:"scatter",mode:"lines+markers",line:{color:"#3978f6",width:3,shape:"spline"},marker:{size:7,color:"#3978f6"},fill:"tozeroy",fillcolor:"rgba(57,120,246,.08)",hovertemplate:"%{x}<br>₹%{y:,.2f}<extra></extra>"}], {...layout,xaxis:{...layout.xaxis,title:"Month"}}, {responsive:true,displayModeBar:false});
+Plotly.newPlot("categoryChart", [{labels:cats,values:catTotals,type:"pie",hole:.65,textinfo:"label+percent",textposition:"outside",marker:{line:{color:"#fff",width:3}},hovertemplate:"%{label}<br>₹%{value:,.2f}<extra></extra>"}], {paper_bgcolor:"rgba(0,0,0,0)",font:{family:"Inter, Arial",color:"#637083"},margin:{l:15,r:15,t:10,b:10},showlegend:false}, {responsive:true,displayModeBar:false});
+</script>
+{% endblock %}

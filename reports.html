@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Reports · SpendWise{% endblock %}
+{% block heading %}Your expense reports{% endblock %}
+{% block content %}
+<section class="panel"><div class="panel-head"><div><h2>Monthly category summary</h2><p>Grouped totals for your records</p></div><a class="button button-light" href="/export.csv">Export transactions ↓</a></div>
+{% if rows %}<div class="table-wrap"><table><thead><tr><th>Month</th><th>Category</th><th class="right">Total spent</th></tr></thead><tbody>{% for row in rows %}<tr><td>{{ row["month"] }}</td><td><span class="category-pill">{{ row["category"] }}</span></td><td class="right amount">₹{{ "%.2f"|format(row["total"]) }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty"><h3>No report data yet</h3><p>Import or add expenses to generate a report.</p><a class="button" href="/transactions">Add expenses</a></div>{% endif %}</section>
+{% endblock %}

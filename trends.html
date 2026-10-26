@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Trends & Forecast · SpendWise{% endblock %}
+{% block heading %}Understand where spending is headed{% endblock %}
+{% block content %}
+<section class="panel"><div class="panel-head"><div><h2>Monthly expenses</h2><p>Actual spending, 3-month moving average, and optional ARIMA forecast</p></div><span class="tag">LAB 6</span></div><div class="notice">{{ message }}</div><div id="trendChart" class="chart chart-tall"></div></section>
+<section class="panel"><h2>How to read this chart</h2><div class="explain-grid"><div><strong>Monthly expenses</strong><p>Total amount recorded in each calendar month.</p></div><div><strong>Moving average</strong><p>Smooths short-term variation using the previous three months.</p></div><div><strong>Forecast</strong><p>A statistical estimate for the next three months when enough history is available.</p></div></div></section>
+<script>
+const months={{ months|tojson }}, totals={{ totals|tojson }}, averages={{ averages|tojson }};
+const forecast={{ forecast|tojson }}, futureMonths={{ future_months|tojson }};
+const traces=[{x:months,y:totals,type:"scatter",mode:"lines+markers",name:"Monthly expenses",line:{color:"#3978f6",width:3}},{x:months,y:averages,type:"scatter",mode:"lines+markers",name:"3-month moving average",line:{color:"#20a486",width:2}}];
+if(forecast.length){traces.push({x:futureMonths,y:forecast,type:"scatter",mode:"lines+markers",name:"ARIMA forecast",line:{color:"#e58a3a",dash:"dash",width:3}})}
+Plotly.newPlot("trendChart",traces,{paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{family:"Inter, Arial",color:"#637083"},margin:{l:55,r:25,t:15,b:50},xaxis:{title:"Month",gridcolor:"#edf0f5"},yaxis:{title:"Amount (₹)",tickprefix:"₹",gridcolor:"#edf0f5"},legend:{orientation:"h",y:-.2}},{responsive:true,displayModeBar:false});
+</script>
+{% endblock %}

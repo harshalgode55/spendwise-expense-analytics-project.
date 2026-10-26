@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SpendWise{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="/">◈ SpendWise</a>
+    <p class="nav-label">WORKSPACE</p>
+    <a href="/">▦ &nbsp; Dashboard</a>
+    <a href="/transactions">↕ &nbsp; Transactions</a>
+    <a href="/analysis">◫ &nbsp; Visual Analysis</a>
+    <a href="/trends">⌁ &nbsp; Trends & Forecast</a>
+    <a href="/reports">▤ &nbsp; Reports</a>
+    <div class="sidebar-note"><strong>Spend smarter.</strong><br><span>Understand where your money goes.</span></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><span class="eyebrow">PERSONAL FINANCE WORKSPACE</span><h1>{% block heading %}Your money, clearly understood.{% endblock %}</h1></div><a class="button button-light" href="/transactions">＋ Add expenses</a></header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    <footer>SpendWise · College Data Visualization Project</footer>
+  </main>
+</body>
+</html>

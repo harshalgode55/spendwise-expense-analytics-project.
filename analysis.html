@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Visual Analysis · SpendWise{% endblock %}
+{% block heading %}Explore your expense patterns{% endblock %}
+{% block content %}
+<div class="intro-row"><p>Distribution and category visualizations inspired by Lab 7 and Lab 8.</p><span class="tag">DATA VISUALIZATION</span></div>
+<section class="content-grid equal">
+ <article class="panel"><div class="panel-head"><div><h2>Expense amount distribution</h2><p>Histogram of transaction amounts</p></div></div><div id="histogram" class="chart"></div></article>
+ <article class="panel"><div class="panel-head"><div><h2>Amount spread and outliers</h2><p>Boxplot of individual expenses</p></div></div><div id="boxplot" class="chart"></div></article>
+ <article class="panel"><div class="panel-head"><div><h2>Category comparison</h2><p>Total expense amount per category</p></div></div><div id="barChart" class="chart"></div></article>
+ <article class="panel"><div class="panel-head"><div><h2>Amount vs. transaction order</h2><p>Scatter plot with linear trendline</p></div></div><div id="scatter" class="chart"></div></article>
+</section>
+<script>
+const common={paper_bgcolor:"rgba(0,0,0,0)",plot_bgcolor:"rgba(0,0,0,0)",font:{family:"Inter, Arial",color:"#637083"},margin:{l:50,r:20,t:15,b:45},xaxis:{gridcolor:"#edf0f5"},yaxis:{gridcolor:"#edf0f5",tickprefix:"₹"}};
+fetch("/api/analysis").then(r=>r.json()).then(d=>{
+ Plotly.newPlot("histogram",[{x:d.amounts,type:"histogram",marker:{color:"#3978f6"},hovertemplate:"Amount range: %{x}<br>Count: %{y}<extra></extra>"}],{...common,title:"How often amounts occur",xaxis:{...common.xaxis,title:"Amount (₹)"},yaxis:{...common.yaxis,title:"Count"}},{responsive:true,displayModeBar:false});
+ Plotly.newPlot("boxplot",[{y:d.amounts,type:"box",name:"Expenses",marker:{color:"#20a486"},boxpoints:"outliers"}],{...common,title:"Expense amount spread",yaxis:{...common.yaxis,title:"Amount (₹)"}},{responsive:true,displayModeBar:false});
+ Plotly.newPlot("barChart",[{x:d.categories,y:d.category_totals,type:"bar",marker:{color:"#3978f6"},hovertemplate:"%{x}<br>₹%{y:,.2f}<extra></extra>"}],{...common,title:"Spending by category",xaxis:{...common.xaxis,title:"Category"},yaxis:{...common.yaxis,title:"Total (₹)"}},{responsive:true,displayModeBar:false});
+ const x=d.amounts.map((_,i)=>i+1), y=d.amounts;
+ let lineX=[],lineY=[];
+ if(x.length>1){const xm=x.reduce((a,b)=>a+b,0)/x.length,ym=y.reduce((a,b)=>a+b,0)/y.length;const slope=x.reduce((s,xi,i)=>s+(xi-xm)*(y[i]-ym),0)/x.reduce((s,xi)=>s+(xi-xm)**2,0);lineX=[1,x.length];lineY=lineX.map(xi=>ym+slope*(xi-xm));}
+ Plotly.newPlot("scatter",[{x,y,type:"scatter",mode:"markers",name:"Expenses",marker:{color:"#20a486",size:9},hovertemplate:"Transaction %{x}<br>₹%{y:,.2f}<extra></extra>"},{x:lineX,y:lineY,type:"scatter",mode:"lines",name:"Trendline",line:{color:"#e58a3a",dash:"dash"}}],{...common,title:"Amount by transaction order",xaxis:{title:"Transaction order",gridcolor:"#edf0f5"},yaxis:{...common.yaxis,title:"Amount (₹)"},showlegend:true},{responsive:true,displayModeBar:false});
+});
+</script>
+{% endblock %}
